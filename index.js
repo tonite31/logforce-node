@@ -1,46 +1,70 @@
 (function()
 {
-    const uuidv4 = require('uuid/v4');
-    const Manager = require('./src/manager.js');
+    const LZUTF8 = require('lzutf8');
     const Logger = require('./src/logger.js');
 
-    module.exports.initialize = function(options)
+    const ConsoleAdaptor = require('./src/adaptors/console.adaptor.js');
+
+    let Manager = function(options)
     {
-        let manager = new Manager(options);
+        this.options = options || {};
 
-        return function(req, res, next)
+        this.options.timestamp = this.options.timestamp || {};
+        this.options.timestamp.format = this.options.timestamp.format || 'YYYY-MM-DD hh:mm:ss.sss';
+        this.options.timestamp.timezone = this.options.timestamp.timezone || 'utc';
+
+        this.options.adaptors = this.options.adaptors || [];
+
+        var checkConsoleAdaptor = false;
+        for(var i=0, l=this.options.adaptors.length; i<l; i++)
         {
-            if(req.method)
+            let adaptor = this.options.adaptors[i];
+            if(adaptor.name === 'console')
             {
-                req.requestId = uuidv4();
-                let logger = req.logger = new Logger(req.requestId);
-
-                var logData = { type: 'REQ', url: req.url, method: req.method };
-                if(req.method === 'GET')
-                {
-                    logData.query = req.query;
-                }
-                else
-                {
-                    logData.body = req.body;
-                }
-
-                logData.headers = req.headers;
-
-                logger.json(logData);
-
-                let send = res.send;
-                res.send = function()
-                {
-                    let body = arguments.length === 1 ? arguments[0] : arguments;
-                    logger.json({ status: this.statusCode, body: body });
-
-                    manager.publish(logger);
-                    return send.apply(this, arguments);
-                }.bind(res);
+                checkConsoleAdaptor = true;
+                break;
             }
+        }
 
-            next();
-        };
+        if(!checkConsoleAdaptor)
+        {
+            this.options.adaptors.push(ConsoleAdaptor);
+        }
     };
+
+    Manager.prototype.createLogger = function(ns, tags)
+    {
+        let logger = new Logger(ns, tags || {}, this.options.timestamp);
+        logger.manager = this;
+        return logger;
+    };
+
+    Manager.prototype.from = function(compressed)
+    {
+        let origin = Buffer.from(compressed, 'hex');
+        let decompressed = LZUTF8.decompress(origin);
+        let data = JSON.parse(decompressed);
+
+        let logger = new Logger(data.ns, data.tags, data.timestamp);
+        logger.manager = this;
+        logger.logs = data.logs;
+        return logger;
+    };
+
+    Manager.prototype.publish = function(logger)
+    {
+        let compressed = LZUTF8.compress(JSON.stringify(logger));
+        let hex = Buffer.from(compressed).toString('hex');
+
+        for(var i=0, l=this.options.adaptors.length; i<l; i++)
+        {
+            let adaptor = this.options.adaptors[i];
+            if(adaptor.name === 'console')
+            {
+                adaptor.exec(logger);
+            }
+        }
+    };
+
+    module.exports = Manager;
 })();
