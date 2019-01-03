@@ -29,6 +29,11 @@
         this.isChild = false;
     };
 
+    Logger.prototype.addTag = function(key, value)
+    {
+        this.tags[key] = value;
+    };
+
     Logger.prototype.createChild = function()
     {
         let logger = new Logger(this.ns, this.tags, this.timestamp);
@@ -40,7 +45,7 @@
         return logger;
     };
 
-    Logger.prototype.text = function()
+    Logger.prototype.text = function(options)
     {
         let args = arguments;
 
@@ -62,13 +67,21 @@
             }
         }
 
-        this.json(text);
+        this.json(text, {}, options);
     };
 
-    Logger.prototype.json = function(text, data)
+    // options - color: 콘솔에 찍을때 로그 색깔
+    Logger.prototype.json = function(text, data, options)
     {
         if(arguments.length === 1 && typeof text === 'object')
         {
+            options = data;
+            data = text;
+            text = '';
+        }
+        else if(arguments.length === 2 && typeof text === 'object' && typeof data === 'object')
+        {
+            options = data;
             data = text;
             text = '';
         }
@@ -97,6 +110,8 @@
 
             data.timestamp = timestamp.format(this.timestamp.format);
         }
+
+        data.options = options;
 
         this.logs.push(data);
         return this;
