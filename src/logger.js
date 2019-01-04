@@ -136,5 +136,21 @@
         }
     };
 
+    Logger.prototype.safety = function(callback)
+    {
+        var self = this;
+        return function()
+        {
+            try
+            {
+                callback.apply(this, arguments);
+            }
+            catch(err)
+            {
+                self.json('Exception', { stack: err.stack, message: err.message }, { color: 'red' });
+            }
+        };
+    };
+
     module.exports = Logger;
 })();
