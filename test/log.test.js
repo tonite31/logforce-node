@@ -1,20 +1,13 @@
-const Manager = require('../src/manager.js');
+const Logforce = require('../index.js');
 
 (function()
 {
-    let manager = new Manager({ timestamp: { format: 'hh:mm:ss', timezone: 'asia/seoul' }});
-    let logger = manager.createLogger('test');
+    let logforce = new Logforce({ timestamp: { format: 'hh:mm:ss', timezone: 'asia/seoul' }});
+    let logger = logforce.createLogger('test');
 
-    logger.json({ test: 'value' });
-    logger.text('테스트', { test: 'value' });
-    logger.json({ test: 'value' });
-    logger.text('테스트', { test: 'value' });
-    logger.json({ test: 'value' });
-    logger.text('테스트', { test: 'value' });
-    logger.json({ test: 'value' });
-    logger.text('테스트', { test: 'value' });
-    logger.json({ test: 'value' });
-
+    logger.json('log', { test: '일반적인 로그' });
+    logger.json('log', { test: '색깔이 들어간 로그' }, { color: 'yellow' });
+    logger.json('error', { test: '에러' }, { color: 'red' });
 
     logger.publish();
 })();

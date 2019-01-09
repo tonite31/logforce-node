@@ -1,31 +1,31 @@
-const Manager = require('../src/manager.js');
+const Logforce = require('../index.js');
 
 (function()
 {
-    let manager = new Manager({ timestamp: { format: 'hh:mm:ss', timezone: 'asia/seoul' }});
-    let logger = manager.createLogger('test');
+    let logforce = new Logforce({ timestamp: { format: 'hh:mm:ss', timezone: 'asia/seoul' }});
+    let logger = logforce.createLogger('test');
 
-    logger.json('grand-parent', { index: 0 });
+    logger.json('log', { name: 'grand-parent', index: 0 });
 
     let parent = logger.createChild();
     setTimeout(function()
     {
-        parent.json('parent', { index: 0 });
-        parent.json('parent', { index: 1 });
+        parent.json('log', { name: 'parent', index: 0 });
+        parent.json('log', { name: 'parent', index: 1 });
         let child = parent.createChild();
         setTimeout(function()
         {
-            child.json('child', { index: 0 });
-            child.json('child', { index: 1 });
+            child.json('log', { name: 'child', index: 0 });
+            child.json('log', { name: 'child', index: 1 });
             child.publish();
         }, 2000);
 
-        parent.json('parent', { index: 2 });
+        parent.json('log', { name: 'parent', index: 2 });
         parent.publish();
     }, 3000);
 
-    logger.json('grand-parent', { index: 1 });
-    logger.json('grand-parent', { index: 2 });
-    logger.json('grand-parent', { index: 3 });
+    logger.json('log', { name: 'grand-parent', index: 1 });
+    logger.json('log', { name: 'grand-parent', index: 2 });
+    logger.json('log', { name: 'grand-parent', index: 3 });
     logger.publish();
 })();
