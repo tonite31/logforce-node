@@ -1,5 +1,6 @@
 (function()
 {
+    const LZUTF8 = require('lzutf8');
     const moment = require('moment-timezone');
 
     let Logger = function(ns, tags, timestamp)
@@ -23,6 +24,8 @@
         this.tags = tags;
         this.timestamp = timestamp;
         this.logs = [];
+
+        this.childs = [];
         this.manager = undefined;
         this.parent = undefined;
         this.index = -1;
@@ -37,83 +40,50 @@
     Logger.prototype.createChild = function()
     {
         let logger = new Logger(this.ns, this.tags, this.timestamp);
+
         let index = this.logs.push('child') - 1;
         logger.index = index;
         logger.parent = this;
         logger.isChild = true;
 
+        this.childs.push(logger);
+
         return logger;
     };
 
-    Logger.prototype.text = function(options)
+    Logger.prototype.addChild = function(logger)
     {
-        let args = arguments;
+        let index = this.logs.push('child') - 1;
+        logger.index = index;
+        logger.parent = this;
+        logger.isChild = true;
 
-        var text = '';
-        for(var i=0, l = args.length; i<l; i++)
-        {
-            if(i > 0)
-            {
-                text += ' ';
-            }
-
-            if(typeof args[i] === 'object')
-            {
-                text += JSON.stringify(args[i]);
-            }
-            else
-            {
-                text += args[i];
-            }
-        }
-
-        this.json(text, {}, options);
+        this.childs.push(logger);
     };
 
     // options - color: 콘솔에 찍을때 로그 색깔
-    Logger.prototype.json = function(text, data, options)
+    Logger.prototype.json = function(level, data, options)
     {
-        if(arguments.length === 1 && typeof text === 'object')
-        {
-            options = data;
-            data = text;
-            text = '';
-        }
-        else if(arguments.length === 2 && typeof text === 'object' && typeof data === 'object')
-        {
-            options = data;
-            data = text;
-            text = '';
-        }
+        var log = {};
+        log.level = level;
+        log.ns = this.ns;
+        log.tags = this.tags;
+        log.data = data;
+        log.options = options;
 
-        if(!data)
+        var timestamp = undefined;
+        if(this.timestamp.timezone === 'utc')
         {
-            data = {};
+            timestamp = moment.utc();
         }
-
-        if(text)
+        else
         {
-            data.text = text;
+            timestamp = moment.tz(this.timestamp.timezone);
         }
 
-        if(!data.hasOwnProperty('timestamp'))
-        {
-            let timestamp = undefined;
-            if(this.timestamp.timezone === 'utc')
-            {
-                timestamp = moment.utc();
-            }
-            else
-            {
-                timestamp = moment.tz(this.timestamp.timezone);
-            }
+        log.timestamp = timestamp.format(this.timestamp.format);
 
-            data.timestamp = timestamp.format(this.timestamp.format);
-        }
-
-        data.options = options;
-
-        this.logs.push(data);
+        this.logs.push(log);
         return this;
     };
 
@@ -125,6 +95,13 @@
             {
                 this.manager.publish(this);
             }
+            else
+            {
+                for(var i=0, l=this.childs.length; i<l; i++)
+                {
+                    this.childs[i].publish();
+                }
+            }
         }
         else
         {
@@ -133,23 +110,29 @@
             {
                 this.parent.publish();
             }
+            else
+            {
+                for(var i=0, l=this.childs.length; i<l; i++)
+                {
+                    this.childs[i].publish();
+                }
+            }
         }
     };
 
-    Logger.prototype.safety = function(callback)
+    Logger.prototype.serialize = function()
     {
-        var self = this;
-        return function()
-        {
-            try
-            {
-                callback.apply(this, arguments);
-            }
-            catch(err)
-            {
-                self.json('Exception', { stack: err.stack, message: err.message }, { color: 'red' });
-            }
+        var data = {
+            ns: this.ns,
+            tags: this.tags,
+            timestamp: this.timestamp,
+            logs: this.logs
         };
+
+        let compressed = LZUTF8.compress(JSON.stringify(data));
+        let hex = Buffer.from(compressed).toString('hex');
+
+        return hex;
     };
 
     module.exports = Logger;
