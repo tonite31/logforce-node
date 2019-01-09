@@ -3,7 +3,7 @@
     const LZUTF8 = require('lzutf8');
     const Logger = require('./src/logger.js');
 
-    const ConsoleAdaptor = require('./src/adaptors/console.adaptor.js');
+    const ConsoleAdapter = require('./src/adapters/console.adapter.js');
 
     let Manager = function(options)
     {
@@ -13,22 +13,22 @@
         this.options.timestamp.format = this.options.timestamp.format || 'YYYY-MM-DD hh:mm:ss.sss';
         this.options.timestamp.timezone = this.options.timestamp.timezone || 'utc';
 
-        this.options.adaptors = this.options.adaptors || [];
+        this.options.adapters = this.options.adapters || [];
 
-        var checkConsoleAdaptor = false;
-        for(var i=0, l=this.options.adaptors.length; i<l; i++)
+        var checkConsoleAdapter = false;
+        for(var i=0, l=this.options.adapters.length; i<l; i++)
         {
-            let adaptor = this.options.adaptors[i];
+            let adaptor = this.options.adapters[i];
             if(adaptor.name === 'console')
             {
-                checkConsoleAdaptor = true;
+                checkConsoleAdapter = true;
                 break;
             }
         }
 
-        if(!checkConsoleAdaptor)
+        if(!checkConsoleAdapter)
         {
-            this.options.adaptors.push(ConsoleAdaptor);
+            this.options.adapters.push(new ConsoleAdapter());
         }
     };
 
@@ -39,7 +39,7 @@
         return logger;
     };
 
-    Manager.prototype.from = function(compressed)
+    Manager.prototype.deserialize = function(compressed)
     {
         let origin = Buffer.from(compressed, 'hex');
         let decompressed = LZUTF8.decompress(origin);
@@ -53,18 +53,18 @@
 
     Manager.prototype.publish = function(logger)
     {
-        let compressed = LZUTF8.compress(JSON.stringify(logger));
-        let hex = Buffer.from(compressed).toString('hex');
-
-        for(var i=0, l=this.options.adaptors.length; i<l; i++)
+        for(var i=0, l=this.options.adapters.length; i<l; i++)
         {
-            let adaptor = this.options.adaptors[i];
-            if(adaptor.name === 'console')
-            {
-                adaptor.exec(logger);
-            }
+            let adaptor = this.options.adapters[i];
+            adaptor.publish(logger);
         }
     };
+
+    Manager.Adapter = {
+        Console: ConsoleAdapter,
+        Slack: require('./src/adapters/slack.adapter.js'),
+        SocketIO: require('./src/adapters/socket.io.adapter.js')
+    }
 
     module.exports = Manager;
 })();
