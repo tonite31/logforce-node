@@ -1,28 +1,31 @@
 {
-  "name": "rayst-logger",
-  "version": "0.0.1",
-  "description": "nodejs기반의 서버를 위한 로깅 모듈",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tonite31/rayst-logger.git"
-  },
-  "keywords": [
-    "log"
-  ],
-  "author": "Rayim",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tonite31/rayst-logger/issues"
-  },
-  "homepage": "https://github.com/tonite31/rayst-logger#readme",
-  "dependencies": {
-    "lzutf8": "^0.5.5",
-    "moment": "^2.23.0",
-    "moment-timezone": "^0.5.23",
-    "uuid": "^3.3.2"
-  }
+    "name": "logforce-node",
+    "version": "0.0.1",
+    "description": "nodejs기반의 서버를 위한 로깅 모듈",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tonite31/logforce-node.git"
+    },
+    "keywords": [
+        "log"
+    ],
+    "author": "Rayim",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/tonite31/logforce-node/issues"
+    },
+    "homepage": "https://github.com/tonite31/logforce-node#readme",
+    "dependencies": {
+        "chalk": "^2.4.2",
+        "lzutf8": "^0.5.5",
+        "moment": "^2.23.0",
+        "moment-timezone": "^0.5.23",
+        "slack-node": "^0.1.8",
+        "socket.io-client": "^2.2.0",
+        "uuid": "^3.3.2"
+    }
 }
