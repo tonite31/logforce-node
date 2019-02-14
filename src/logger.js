@@ -95,13 +95,6 @@
             {
                 this.manager.publish(this);
             }
-            else
-            {
-                for(var i=0, l=this.childs.length; i<l; i++)
-                {
-                    this.childs[i].publish();
-                }
-            }
         }
         else
         {
