@@ -15,6 +15,8 @@
 
         this.options.adapters = this.options.adapters || [];
 
+        this.options.waitForChildren = this.options.waitForChildren || 3000;
+
         var checkConsoleAdapter = false;
         for(var i=0, l=this.options.adapters.length; i<l; i++)
         {
@@ -34,7 +36,7 @@
 
     Manager.prototype.createLogger = function(ns, tags)
     {
-        let logger = new Logger(ns, tags || {}, this.options.timestamp);
+        let logger = new Logger(ns, tags || {}, { timestamp: this.options.timestamp, waitForChildren: this.options.waitForChildren });
         logger.manager = this;
         return logger;
     };

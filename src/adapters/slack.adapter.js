@@ -38,6 +38,11 @@
         var logText = '';
         for(var i=0, l=logs.length; i<l; i++)
         {
+            if(logs[i] === 'child')
+            {
+                continue;
+            }
+
             let log = JSON.parse(JSON.stringify(logs[i]));
             if(Array.isArray(log))
             {

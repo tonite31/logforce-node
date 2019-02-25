@@ -24,6 +24,11 @@
             else
             {
                 let log = logs[i];
+                if(log === 'child')
+                {
+                    continue;
+                }
+
                 var logFormat = '[ns:' + log.ns + ']';
                 for(let key in log.tags)
                 {

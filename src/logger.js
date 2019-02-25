@@ -3,7 +3,7 @@
     const LZUTF8 = require('lzutf8');
     const moment = require('moment-timezone');
 
-    let Logger = function(ns, tags, timestamp)
+    let Logger = function(ns, tags, options)
     {
         if(!ns || typeof ns !== 'string')
         {
@@ -15,6 +15,8 @@
             throw new Error('tags must be json object');
         }
 
+        let timestamp = options.timestamp;
+
         if(!timestamp || typeof timestamp !== 'object' || !timestamp.hasOwnProperty('format') || !timestamp.hasOwnProperty('timezone'))
         {
             throw new Error('timestamp must be json object that have 2 key "foramt" and "timezone"');
@@ -23,6 +25,7 @@
         this.ns = ns;
         this.tags = tags;
         this.timestamp = timestamp;
+        this.waitForChildren = options.waitForChildren;
         this.logs = [];
 
         this.childs = [];
@@ -30,6 +33,9 @@
         this.parent = undefined;
         this.index = -1;
         this.isChild = false;
+        this.ready = false;
+
+        this.options = options;
     };
 
     Logger.prototype.addTag = function(key, value)
@@ -39,7 +45,7 @@
 
     Logger.prototype.createChild = function()
     {
-        let logger = new Logger(this.ns, this.tags, this.timestamp);
+        let logger = new Logger(this.ns, this.tags, this.options);
 
         let index = this.logs.push('child') - 1;
         logger.index = index;
@@ -87,13 +93,46 @@
         return this;
     };
 
-    Logger.prototype.publish = function()
+    Logger.prototype.publish = function(from)
     {
+        if(from === undefined)
+        {
+            this.ready = true;
+        }
+
         if(!this.isChild)
         {
             if(this.logs.indexOf('child') === -1)
             {
-                this.manager.publish(this);
+                if(this.ready)
+                {
+                    this.manager.publish(this);
+                }
+            }
+            else
+            {
+                var isReady = true;
+                for(var i=0, l=this.childs.length; i<l; i++)
+                {
+                    if(!this.childs[i].ready)
+                    {
+                        isReady = false;
+                        break;
+                    }
+                }
+
+                if(isReady)
+                {
+                    this.manager.publish(this);
+                }
+                else
+                {
+                    let self = this;
+                    setTimeout(function()
+                    {
+                        self.manager.publish(self);
+                    }, this.waitForChildren || 3000);
+                }
             }
         }
         else
@@ -101,13 +140,23 @@
             this.parent.logs.splice(this.index, 1, this.logs);
             if(this.logs.indexOf('child') === -1)
             {
-                this.parent.publish();
+                this.parent.publish(true);
             }
             else
             {
+                var isReady = true;
                 for(var i=0, l=this.childs.length; i<l; i++)
                 {
-                    this.childs[i].publish();
+                    if(!this.childs[i].ready)
+                    {
+                        isReady = false;
+                        break;
+                    }
+                }
+
+                if(isReady)
+                {
+                    this.parent.publish(true);
                 }
             }
         }
