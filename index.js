@@ -47,7 +47,7 @@
         let decompressed = LZUTF8.decompress(origin);
         let data = JSON.parse(decompressed);
 
-        let logger = new Logger(data.ns, data.tags, data.timestamp);
+        let logger = new Logger(data.ns, data.tags, data.options);
         logger.manager = this;
         logger.logs = data.logs;
         return logger;

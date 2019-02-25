@@ -167,7 +167,7 @@
         var data = {
             ns: this.ns,
             tags: this.tags,
-            timestamp: this.timestamp,
+            options: this.options,
             logs: this.logs
         };
 
