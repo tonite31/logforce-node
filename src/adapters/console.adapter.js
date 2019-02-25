@@ -1,6 +1,13 @@
 (function()
 {
     const chalk = require('chalk');
+    const colorize = require('json-colorizer');
+
+    let colors = {
+        STRING_KEY: '#690',
+        STRING_LITERAL: '#87a238',
+        NUMBER_LITERAL: '#87a238'
+    };
 
     const ConsoleAdapter = function()
     {
@@ -53,14 +60,16 @@
                     tabText += '\t';
                 }
 
-                var logText = tabText + '[' + level + ']' + logFormat + '[ts:' + timestamp + '] ' + JSON.stringify(log.data);
+
+                let data = JSON.stringify(log.data);
+                var logText = tabText + '[' + level + ']' + logFormat + '[ts:' + timestamp + '] ';
                 if(color)
                 {
-                    console.log(chalk[color](logText));
+                    console.log(chalk[color](logText) + colorize(data, { colors: colors }));
                 }
                 else
                 {
-                    console.log(logText);
+                    console.log(logText + data);
                 }
             }
         }
