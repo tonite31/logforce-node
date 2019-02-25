@@ -1,6 +1,6 @@
 {
     "name": "logforce-node",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "nodejs기반의 서버를 위한 로깅 모듈",
     "main": "index.js",
     "scripts": {
