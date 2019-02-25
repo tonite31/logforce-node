@@ -65,7 +65,17 @@
                     tabText += '\t';
                 }
 
-                let data = JSON.stringify(log.data);
+                var colorOptions = colors;
+                if(level !== 'error')
+                {
+                    data = JSON.stringify(log.data);
+                }
+                else
+                {
+                    colorOptions = { STRING_KEY: '#690', STRING_LITERAL: '#aa0000' };
+                    data = JSON.stringify(log.data, null, 4);
+                }
+
                 var logText = tabText + chalker('gray', '[') + chalker(color, level) + chalker('gray', ']') + logFormat + chalker('gray', '[') + chalker('green', 'ts: ') + chalker(color, timestamp) + chalker('gray', '] ');
                 console.log(logText + '\n' + colorize(data, { colors: colors }));
             }
