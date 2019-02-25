@@ -9,6 +9,11 @@
         NUMBER_LITERAL: '#87a238'
     };
 
+    function chalker(color, text)
+    {
+        return color ? chalk[color](text) : text;
+    }
+
     const ConsoleAdapter = function()
     {
         this.name = 'console';
@@ -36,18 +41,18 @@
                     continue;
                 }
 
-                var logFormat = '[ns:' + log.ns + ']';
-                for(let key in log.tags)
-                {
-                    logFormat += '[' + key + ':' + log.tags[key] + ']';
-                }
-
                 let options = log.options;
 
                 var color = '';
                 if(options && options.color)
                 {
                     color = options.color;
+                }
+
+                var logFormat = chalker('gray', '[') + chalker('green', 'ns: ') + chalker(color, log.ns) + chalker('gray', ']');
+                for(let key in log.tags)
+                {
+                    logFormat += chalker('gray', '[') + chalker('green', key) + chalker('gray', ': ') + chalker(color, log.tags[key]) + chalker('gray', ']');
                 }
 
                 let timestamp = log.timestamp;
@@ -60,17 +65,9 @@
                     tabText += '\t';
                 }
 
-
                 let data = JSON.stringify(log.data);
-                var logText = tabText + '[' + level + ']' + logFormat + '[ts:' + timestamp + '] ';
-                if(color)
-                {
-                    console.log(chalk[color](logText) + colorize(data, { colors: colors }));
-                }
-                else
-                {
-                    console.log(logText + data);
-                }
+                var logText = tabText + chalker('gray', '[') + chalker(color, level) + chalker('gray', ']') + logFormat + chalker('gray', '[') + chalker('green', 'ts: ') + chalker(color, timestamp) + chalker('gray', '] ');
+                console.log(logText + '\n' + colorize(data, { colors: colors }));
             }
         }
     };
