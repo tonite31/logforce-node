@@ -65,6 +65,7 @@
                     tabText += '\t';
                 }
 
+                var data = undefined;
                 var colorOptions = colors;
                 if(level !== 'error')
                 {
@@ -76,8 +77,9 @@
                     data = JSON.stringify(log.data, null, 4);
                 }
 
-                var logText = tabText + chalker('gray', '[') + chalker(color, level) + chalker('gray', ']') + logFormat + chalker('gray', '[') + chalker('green', 'ts: ') + chalker(color, timestamp) + chalker('gray', '] ');
-                console.log(logText + '\n' + colorize(data, { colors: colors }));
+                var logText = chalker('gray', '[') + chalker(color, level) + chalker('gray', ']') + logFormat + chalker('gray', '[') + chalker('green', 'ts: ') + chalker(color, timestamp) + chalker('gray', '] ');
+                console.log(tabText + logText);
+                console.log(tabText + colorize(data, { colors: colors }));
             }
         }
     };

@@ -36,6 +36,9 @@
         this.ready = false;
 
         this.options = options;
+
+        this.timer = undefined;
+        this.published = false;
     };
 
     Logger.prototype.addTag = function(key, value)
@@ -104,8 +107,10 @@
         {
             if(this.logs.indexOf('child') === -1)
             {
-                if(this.ready)
+                if(this.ready && !this.published)
                 {
+                    this.published = true;
+                    clearTimeout(this.timer);
                     this.manager.publish(this);
                 }
             }
@@ -123,14 +128,25 @@
 
                 if(isReady)
                 {
-                    this.manager.publish(this);
+                    if(!this.published)
+                    {
+                        this.published = true;
+                        clearTimeout(this.timer);
+                        this.manager.publish(this);
+                    }
                 }
                 else
                 {
                     let self = this;
-                    setTimeout(function()
+                    clearTimeout(this.timer);
+                    this.timer = setTimeout(function()
                     {
-                        self.manager.publish(self);
+                        if(!self.published)
+                        {
+                            self.published = true;
+                            self.manager.publish(self);
+                        }
+
                     }, this.waitForChildren || 3000);
                 }
             }
