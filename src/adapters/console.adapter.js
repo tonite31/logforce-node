@@ -14,9 +14,10 @@
         return color ? chalk[color](text) : text;
     }
 
-    const ConsoleAdapter = function()
+    const ConsoleAdapter = function(level)
     {
         this.name = 'console';
+        this.level = level;
     };
 
     ConsoleAdapter.prototype.publish = function(logger)
@@ -58,6 +59,30 @@
                 let timestamp = log.timestamp;
 
                 let level = log.level;
+                if(this.level)
+                {
+                    if(Array.isArray(this.level))
+                    {
+                        var check = false;
+                        for(let i=0; i<this.level.length; i++)
+                        {
+                            if(this.level[i] === level)
+                            {
+                                check = true;
+                                break;
+                            }
+                        }
+
+                        if(!check)
+                        {
+                            continue;
+                        }
+                    }
+                    else if(typeof this.level === 'string' && this.level !== level)
+                    {
+                        continue;
+                    }
+                }
 
                 var tabText = '';
                 for(var tt=1; tt<tab; tt++)

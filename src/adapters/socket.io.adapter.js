@@ -2,10 +2,11 @@
 {
     const io = require('socket.io-client');
 
-    let SocketIOAdapter = function(url)
+    let SocketIOAdapter = function(url, level)
     {
         this.url = url;
         this.socket = undefined;
+        this.level = level;
     };
 
     SocketIOAdapter.prototype.connect = function(callback)

@@ -2,7 +2,7 @@ const Logforce = require('../index.js');
 
 (function()
 {
-    let logforce = new Logforce({ timestamp: { format: 'hh:mm:ss', timezone: 'asia/seoul' }});
+    let logforce = new Logforce({ timestamp: { format: 'hh:mm:ss', timezone: 'asia/seoul' }, adapters: [new Logforce.Adapter.Console()] });
     let logger = logforce.createLogger('test');
 
     logger.json('log', { test: '일반적인 로그' });

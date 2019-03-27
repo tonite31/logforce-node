@@ -2,12 +2,13 @@
 {
     const Slack = require('slack-node');
 
-    const SlackAdapter = function(options)
+    const SlackAdapter = function(options, level)
     {
         this.name = 'slack';
         this.options = options || {};
         this.slack = new Slack();
         this.slack.setWebhook(this.options.webhookUrl);
+        this.level = level;
     };
 
     SlackAdapter.prototype.publish = function(logger)
@@ -50,12 +51,37 @@
             }
             else
             {
+                let level = log.level;
+                if(this.level)
+                {
+                    if(Array.isArray(this.level))
+                    {
+                        var check = false;
+                        for(let i=0; i<this.level.length; i++)
+                        {
+                            if(this.level[i] === level)
+                            {
+                                check = true;
+                                break;
+                            }
+                        }
+
+                        if(!check)
+                        {
+                            continue;
+                        }
+                    }
+                    else if(typeof this.level === 'string' && this.level !== level)
+                    {
+                        continue;
+                    }
+                }
+
                 delete log.options;
 
                 let timestamp = log.timestamp;
                 delete log.timestamp;
 
-                let level = log.level;
                 delete log.level;
                 delete log.color;
 
