@@ -45,7 +45,11 @@
             let log = JSON.parse(JSON.stringify(logs[i]));
             if(Array.isArray(log))
             {
-                logText += '\n' + this.log('\t' + logFormat, log);
+                let sublog = this.log('\t' + logFormat, log);
+                if(sublog)
+                {
+                    logText += '\n' + sublog;
+                }
             }
             else
             {
