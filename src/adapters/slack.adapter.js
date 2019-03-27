@@ -13,8 +13,6 @@
 
     SlackAdapter.prototype.publish = function(logger)
     {
-        if(logger.logs[logger.logs.length-1])
-
         var logFormat = '[ns:' + logger.ns + ']';
         for(let key in logger.tags)
         {
@@ -23,7 +21,7 @@
 
         let logText = this.log(logFormat, logger.logs);
 
-        if(this.options.env === 'prod')
+        if(logText)
         {
             this.slack.webhook({
                 channel: this.options.channel,
