@@ -1,6 +1,5 @@
 (function()
 {
-    const LZUTF8 = require('lzutf8');
     const Logger = require('./src/logger.js');
 
     const ConsoleAdapter = require('./src/adapters/console.adapter.js');
@@ -15,10 +14,8 @@
 
         this.options.adapters = this.options.adapters || [];
 
-        this.options.waitForChildren = this.options.waitForChildren || 3000;
-
-        var checkConsoleAdapter = false;
-        for(var i=0, l=this.options.adapters.length; i<l; i++)
+        let checkConsoleAdapter = false;
+        for(let i=0, l=this.options.adapters.length; i<l; i++)
         {
             let adaptor = this.options.adapters[i];
             if(adaptor.name === 'console')
@@ -34,28 +31,16 @@
         }
     };
 
-    Manager.prototype.createLogger = function(ns, tags)
+    Manager.prototype.createLogger = function(header)
     {
-        let logger = new Logger(ns, tags || {}, { timestamp: this.options.timestamp, waitForChildren: this.options.waitForChildren });
+        let logger = new Logger(header, { timestamp: this.options.timestamp });
         logger.manager = this;
-        return logger;
-    };
-
-    Manager.prototype.deserialize = function(compressed)
-    {
-        let origin = Buffer.from(compressed, 'hex');
-        let decompressed = LZUTF8.decompress(origin);
-        let data = JSON.parse(decompressed);
-
-        let logger = new Logger(data.ns, data.tags, data.options);
-        logger.manager = this;
-        logger.logs = data.logs;
         return logger;
     };
 
     Manager.prototype.publish = function(logger)
     {
-        for(var i=0, l=this.options.adapters.length; i<l; i++)
+        for(let i=0, l=this.options.adapters.length; i<l; i++)
         {
             let adaptor = this.options.adapters[i];
             adaptor.publish(logger);

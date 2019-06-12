@@ -6,6 +6,7 @@
     {
         this.url = url;
         this.socket = undefined;
+
         this.level = level;
     };
 
@@ -37,7 +38,7 @@
         let self = this;
         this.connect(function()
         {
-            self.socket.emit('log', { log: logger.serialize() });
+            self.socket.emit('log', { log: logger.json() });
         });
     };
 
