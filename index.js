@@ -8,6 +8,11 @@
     {
         this.options = options || {};
 
+        if(!this.options.hasOwnProperty('publish'))
+        {
+            this.options.publish = {};
+        }
+
         this.options.timestamp = this.options.timestamp || {};
         this.options.timestamp.format = this.options.timestamp.format || 'YYYY-MM-DD hh:mm:ss.sss';
         this.options.timestamp.timezone = this.options.timestamp.timezone || 'utc';
@@ -43,7 +48,7 @@
         for(let i=0, l=this.options.adapters.length; i<l; i++)
         {
             let adaptor = this.options.adapters[i];
-            adaptor.publish(logger);
+            adaptor.publish(logger, this.options.publish);
         }
     };
 

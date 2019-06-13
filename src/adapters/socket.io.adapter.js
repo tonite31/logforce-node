@@ -33,12 +33,12 @@
         }
     };
 
-    SocketIOAdapter.prototype.publish = function(logger)
+    SocketIOAdapter.prototype.publish = function(logger, options)
     {
         let self = this;
         this.connect(function()
         {
-            self.socket.emit('log', { log: logger.json() });
+            self.socket.emit('log', { log: logger.json(), options: options });
         });
     };
 
