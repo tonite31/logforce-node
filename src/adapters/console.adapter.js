@@ -3,7 +3,7 @@
     const ConsoleAdapter = function(level)
     {
         this.name = 'console';
-        this.level = level;
+        this.level = level || 'log';
     };
 
     ConsoleAdapter.prototype.publish = function(logger)
